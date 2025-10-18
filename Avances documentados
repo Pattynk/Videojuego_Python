@@ -1,0 +1,22 @@
+18/10/2025
+Actualización de las imágenes como sprites
+
+El formato de py.games no acepta de manera correcta los svg, por lo que será necesario instalar un pip con la librería de conversión
+__________________________________________________
+
+# pip install cairosvg
+
+__________________________________________________
+Posteriormente se deberá de agregar
+__________________________________________________
+
+import cairosvg
+
+# Convierte un archivo SVG a PNG desde la carpeta del sprite hasta el nombre del archivo en cada archivo
+cairosvg.svg2png(url="personaje/idle1.svg", write_to="personaje/idle1.png")
+
+__________________________________________________
+
+Sin embargo, cada una de las imágenes debía de ser convertida de esta manera, por lo que si la computadora de la persona que lo quiera jugar no tiene ese pip, no podrá cargar bien las imágenes de los sprites, por lo que mejor se optó por convertir las imágenes desde antes a png, se utilizó esta página 
+https://convertio.co/es/svg-png/
+Sin embargo, solo se pueden convertir un par de imágenes al día, por lo que mejor se utilizó pptx para convertir los formatos de svg a jpg, que fue el formato final.
