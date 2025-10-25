@@ -1,3 +1,11 @@
+25/10/2025
+Se agregó una rama con los pasos anteriores para el histórico, sin embargo, se reeemplazó el códgo principal en este archivo en el main
+Los cambios agregados fueron crear una inicialización para cargar el sprite individual de pixie, coordenadas, posición y tamaño
+Se agregó el grupo de sprites para los recolectables que serían las esferas, bastones y luces de navidad para el árbol
+
+
+
+
 22/10/2025
 Carga de imágenes de sprites de colectables y enemigos 
 Se sube la carpeta con los archivos originales de los sprites del colectable y enemy pero ya convertidos alñ formato compatible con py games
