@@ -1,3 +1,9 @@
+27/10/25
+Se agregaron las mecánicas de caída randomizada desde el techo para los colectables que por el momento solamente cuentan con un sprite de caramelo,
+falta revisar la manera en la que los sprites se puedan randomizar y así caigan cosas variadas en la pantalla como las esferas, caramelos o luces.
+Se agregaron los comandos para que hubiera un input de controles para mover al sprite del personaje principal PIXIE de derecha a izquierda.
+
+
 25/10/2025
 Se agregó una rama con los pasos anteriores para el histórico, sin embargo, se reeemplazó el códgo principal en este archivo en el main
 Los cambios agregados fueron crear una inicialización para cargar el sprite individual de pixie, coordenadas, posición y tamaño
