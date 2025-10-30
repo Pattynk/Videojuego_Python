@@ -1,3 +1,8 @@
+30/10/25
+Se agrega la variable puntos por medio de un texto seguido del contador de la variable modificado por la colisión entre el objeto y pixie,
+además de eso se agrega la mecánica de los objetos de desaparecer y reaparecer en la parte superior de la pantalla si pixie los toca
+
+
 27/10/25
 Se agregaron las mecánicas de caída randomizada desde el techo para los colectables que por el momento solamente cuentan con un sprite de caramelo,
 falta revisar la manera en la que los sprites se puedan randomizar y así caigan cosas variadas en la pantalla como las esferas, caramelos o luces.
@@ -10,13 +15,9 @@ Los cambios agregados fueron crear una inicialización para cargar el sprite ind
 Se agregó el grupo de sprites para los recolectables que serían las esferas, bastones y luces de navidad para el árbol
 
 
-
-
 22/10/2025
 Carga de imágenes de sprites de colectables y enemigos 
 Se sube la carpeta con los archivos originales de los sprites del colectable y enemy pero ya convertidos alñ formato compatible con py games
-
-
 
 
 18/10/2025
