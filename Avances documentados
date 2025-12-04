@@ -1,3 +1,7 @@
+03/12/2025
+Se agrega el fondo en movimiento con una velocidad y desplazamiento en el eje de las y, también se incluyen los movimientos de gif para 
+el sprite del fuego y que pueda moverse con la animación mientras va cayendo en la pantalla
+
 30/10/25
 Se agrega la variable puntos por medio de un texto seguido del contador de la variable modificado por la colisión entre el objeto y pixie,
 además de eso se agrega la mecánica de los objetos de desaparecer y reaparecer en la parte superior de la pantalla si pixie los toca
