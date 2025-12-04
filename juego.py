@@ -10,6 +10,17 @@ alto_ventana = 600
 pantalla = pygame.display.set_mode((ancho_ventana, alto_ventana))
 pygame.display.set_caption("PIXIVIDAD")
 
+
+# Fondo
+# Fondo ajustado al tamaño de la ventana
+fondo = pygame.transform.scale(
+    pygame.image.load("fondo.jpg").convert(),
+    (ancho_ventana, alto_ventana)
+)
+fondo_y = 0
+vel_fondo = 3
+
+
 # Fuente para texto
 fuente = pygame.font.Font(None, 36)
 
@@ -61,17 +72,36 @@ class Objeto(pygame.sprite.Sprite):
 class Fuego(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.image.load("sprites-fire/Fire.png").convert()
-        self.image.set_colorkey((255, 255, 255))
-        self.image = pygame.transform.scale(self.image, (50, 60))
+
+        # Cargar todos los frames de animación
+        self.frames = []
+        for i in range(1, 6):  # f1 a f5
+            img = pygame.image.load(f"sprites-fire/f{i}.jpg").convert()
+            img.set_colorkey((255, 255, 255))
+            img = pygame.transform.scale(img, (50, 60))
+            self.frames.append(img)
+
+        self.frame_index = 0
+        self.image = self.frames[self.frame_index]
         self.rect = self.image.get_rect(center=(x, y))
-        self.velocidad_y = 4  # un poco más rápido
+
+        self.velocidad_y = 4
+        self.anim_speed = 0.15  # velocidad de animación, entre más alto el valor, la animación va más rápidito
 
     def update(self):
+        # Movimiento hacia abajo
         self.rect.y += self.velocidad_y
         if self.rect.bottom >= 550:
             nueva_x = random.randint(0, ancho_ventana - self.rect.width)
             self.rect.center = (nueva_x, 50)
+
+        # Animación (cambiar frame)
+        self.frame_index += self.anim_speed
+        if self.frame_index >= len(self.frames):
+            self.frame_index = 0
+
+        self.image = self.frames[int(self.frame_index)]
+
 
 # _______________________________________________________________________
 
@@ -99,7 +129,7 @@ reiniciar_juego()
 clock = pygame.time.Clock()
 corriendo = True
 
-# Bucle principal del juego
+# Game Loop
 while corriendo:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
@@ -110,8 +140,16 @@ while corriendo:
             if boton_rect.collidepoint(evento.pos):
                 reiniciar_juego()
 
-    # Fondo
-    pantalla.fill((255, 250, 250))
+    # Mover fondo hacia abajo
+    fondo_y += vel_fondo
+    if fondo_y >= alto_ventana:
+        fondo_y = 0
+
+
+    # Dibujar fondo cayendo
+    pantalla.blit(fondo, (0, fondo_y))
+    pantalla.blit(fondo, (0, fondo_y - alto_ventana))
+
     pygame.draw.rect(pantalla, (180, 220, 255), (0, 550, 800, 50))
 
     if juego_activo:
@@ -161,4 +199,8 @@ while corriendo:
 
 pygame.quit()
 sys.exit()
+
+pygame.quit()
+sys.exit()
+
 
