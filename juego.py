@@ -47,31 +47,113 @@ class Jugador(pygame.sprite.Sprite):
 
         self.image = self.image_derecha
         self.rect = self.image.get_rect(center=(x, y))
+
+        # Movimiento normal
         self.velocidad = 3
 
+        # Dirección actual ("right" o "left")
+        self.direccion = "right"
+
+        # SALTO
+        self.vel_y = 0
+        self.gravedad = 0.8
+        self.en_suelo = True
+
+        # DASH
+        self.dash_vel = 12
+        self.dash_cooldown = 0
+        self.dash_cooldown_max = 25  # frames de espera
+
     def mover(self, teclas):
+        # ---------------- MOVIMIENTO HORIZONTAL ----------------
         if teclas[pygame.K_RIGHT]:
             self.rect.x += self.velocidad
             self.image = self.image_derecha
+            self.direccion = "right"
+
         elif teclas[pygame.K_LEFT]:
             self.rect.x -= self.velocidad
             self.image = self.image_izquierda
+            self.direccion = "left"
+
+        # ---------------- SALTO ----------------
+        if teclas[pygame.K_UP] and self.en_suelo:
+            self.vel_y = -15  # fuerza del salto
+            self.en_suelo = False
+
+        # ---------------- DASH ----------------
+        if teclas[pygame.K_SPACE] and self.dash_cooldown == 0:
+            if self.direccion == "right":
+                self.rect.x += self.dash_vel
+            else:
+                self.rect.x -= self.dash_vel
+
+            self.dash_cooldown = self.dash_cooldown_max
+
+    def aplicar_gravedad(self):
+        self.rect.y += self.vel_y
+        self.vel_y += self.gravedad
+
+        # Suelo a 550 (como tu juego)
+        if self.rect.bottom >= 550:
+            self.rect.bottom = 550
+            self.vel_y = 0
+            self.en_suelo = True
+
+    def update(self):
+        # reducir cooldown del dash
+        if self.dash_cooldown > 0:
+            self.dash_cooldown -= 1
+
+        # gravedad siempre activa
+        self.aplicar_gravedad()
+
+
+
+
 
 
 class Objeto(pygame.sprite.Sprite):
+    # Cargamos todos los sprites una sola vez (mejor rendimiento)
+    sprites_cargados = []
+
+    @staticmethod
+    def cargar_sprites():
+        if not Objeto.sprites_cargados:
+            for i in range(1, 13):  # del 1 al 12
+                ruta = f"sprites-coins/sprite1-{i}.jpg"
+                try:
+                    img = pygame.image.load(ruta).convert()
+                    img.set_colorkey((255, 255, 255))
+                    img = pygame.transform.scale(img, (30, 50))
+                    Objeto.sprites_cargados.append(img)
+                except:
+                    print(f"No se encontró la imagen: {ruta}")
+
     def __init__(self, x, y, velocidad):
         super().__init__()
-        self.image = pygame.image.load("sprites-coins/sprite1-1.jpg").convert()
-        self.image.set_colorkey((255, 255, 255))
-        self.image = pygame.transform.scale(self.image, (30, 50))
+
+        # Cargar imágenes si aún no están cargadas
+        Objeto.cargar_sprites()
+
+        # Elegir sprite aleatorio
+        self.image = random.choice(Objeto.sprites_cargados)
         self.rect = self.image.get_rect(center=(x, y))
+
         self.velocidad_y = velocidad
 
     def update(self):
         self.rect.y += self.velocidad_y
+
+        # Si toca el suelo, reaparece arriba CON OTRA IMAGEN
         if self.rect.bottom >= 550:
             nueva_x = random.randint(0, ancho_ventana - self.rect.width)
             self.rect.center = (nueva_x, 50)
+            self.image = random.choice(Objeto.sprites_cargados)
+
+
+
+
 
 
 class Fuego(pygame.sprite.Sprite):
@@ -176,10 +258,10 @@ while corriendo:
     if juego_activo:
         teclas = pygame.key.get_pressed()
         jugador.mover(teclas)
-
+        jugador.update()  # gravedad + cooldown del dash
         grupo_objetos.update()
         grupo_fuego.update()
-        jugador.rect.bottom = 550
+
 
         # Colisión con objetos buenos
         colisiones = pygame.sprite.spritecollide(jugador, grupo_objetos, dokill=True)
