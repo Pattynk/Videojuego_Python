@@ -32,6 +32,12 @@ juego_activo = True
 mostrar_intro = True
 victoria = False
 
+# Melodía de fondo
+pygame.mixer.music.load("melodia.mp3")
+pygame.mixer.music.play(-1)  # -1 = loop infinito
+pygame.mixer.music.set_volume(0.5)  # volumen opcional (0.0 a 1.0)
+
+
 
 # ----------------------- CLASES ----------------------------
 class Jugador(pygame.sprite.Sprite):
@@ -60,9 +66,9 @@ class Jugador(pygame.sprite.Sprite):
         self.en_suelo = True
 
         # DASH
-        self.dash_vel = 12
+        self.dash_vel = 50 #Antes 12
         self.dash_cooldown = 0
-        self.dash_cooldown_max = 25  # frames de espera
+        self.dash_cooldown_max = 25 # frames de espera
 
     def mover(self, teclas):
         # ---------------- MOVIMIENTO HORIZONTAL ----------------
