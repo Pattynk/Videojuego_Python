@@ -280,7 +280,7 @@ while corriendo:
             grupo_objetos.add(Objeto(x, 30, velocidad))
 
         # Win (500 puntos)
-        if puntos >= 100:
+        if puntos >= 500:
             juego_activo = False
             victoria = True
 
@@ -292,7 +292,7 @@ while corriendo:
         grupo_fuego.draw(pantalla)
         grupo_jugador.draw(pantalla)
 
-        texto_puntos = fuente.render(f"Puntos: {puntos}", True, (0, 0, 0))
+        texto_puntos = fuente.render(f"Adornos: {puntos}", True, (0, 0, 0))
         pantalla.blit(texto_puntos, (20, 20))
 
     # ----------- GAME OVER / WIN -------------
@@ -318,4 +318,6 @@ while corriendo:
 
 pygame.quit()
 sys.exit()
+
+
 
