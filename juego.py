@@ -21,12 +21,19 @@ fondo_y = 0
 vel_fondo = 3
 
 
+# Imagen de intro
+intro_img = pygame.image.load("INTRO3.jpg").convert()
+intro_img = pygame.transform.scale(intro_img, (ancho_ventana, alto_ventana))
+
+
 # Fuente para texto
 fuente = pygame.font.Font(None, 36)
 
 # Variables del juego
 puntos = 0
 juego_activo = True  # Nuevo: indica si el juego sigue o está en "game over"
+mostrar_intro = True #Contol de intro
+
 
 # Clases del juego______________________________________________________
 class Jugador(pygame.sprite.Sprite):
@@ -129,29 +136,56 @@ reiniciar_juego()
 clock = pygame.time.Clock()
 corriendo = True
 
+
+
+
+
 # Game Loop
+
+
 while corriendo:
+
+    # ------------------- PANTALLA DE INTRO -------------------
+    if mostrar_intro:
+        pantalla.blit(intro_img, (0, 0))
+        pygame.display.flip()
+
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                corriendo = False
+
+            if evento.type == pygame.MOUSEBUTTONDOWN:
+                mostrar_intro = False  # salir de la intro
+
+        continue  # saltar el resto del loop mientras estamos en la intro
+    # ----------------------------------------------------------
+
+
+    # Detectar eventos generales (solo si ya NO estamos en la intro)
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             corriendo = False
 
-        # Si el juego terminó, detectar clic en el botón
+        # Click para reiniciar juego
         if not juego_activo and evento.type == pygame.MOUSEBUTTONDOWN:
             if boton_rect.collidepoint(evento.pos):
                 reiniciar_juego()
+
 
     # Mover fondo hacia abajo
     fondo_y += vel_fondo
     if fondo_y >= alto_ventana:
         fondo_y = 0
 
-
-    # Dibujar fondo cayendo
+    # Dibujar fondo animado
     pantalla.blit(fondo, (0, fondo_y))
     pantalla.blit(fondo, (0, fondo_y - alto_ventana))
 
+    # Suelo
     pygame.draw.rect(pantalla, (180, 220, 255), (0, 550, 800, 50))
 
+
+    # ------------------- JUEGO ACTIVO -------------------
     if juego_activo:
         teclas = pygame.key.get_pressed()
         jugador.mover(teclas)
@@ -168,21 +202,21 @@ while corriendo:
             nuevo_objeto = Objeto(nueva_x, 30)
             grupo_objetos.add(nuevo_objeto)
 
-        # Colisión con fuego → fin del juego
+        # Colisión con fuego
         if pygame.sprite.spritecollide(jugador, grupo_fuego, dokill=False):
             juego_activo = False
 
-        # Dibujo de sprites
+        # Dibujar sprites
         grupo_objetos.draw(pantalla)
         grupo_fuego.draw(pantalla)
         grupo_jugador.draw(pantalla)
 
-        # Puntuación
+        # Puntaje
         texto_puntos = fuente.render(f"Puntos: {puntos}", True, (0, 0, 0))
         pantalla.blit(texto_puntos, (20, 20))
 
+    # ------------------- GAME OVER -------------------
     else:
-        # Pantalla de Game Over
         texto_gameover = fuente.render("¡Vuelve a intentarlo!", True, (200, 0, 0))
         texto_puntaje = fuente.render(f"Puntuación final: {puntos}", True, (0, 0, 0))
         pantalla.blit(texto_gameover, (ancho_ventana//2 - 120, 200))
@@ -196,11 +230,5 @@ while corriendo:
 
     pygame.display.flip()
     clock.tick(60)
-
-pygame.quit()
-sys.exit()
-
-pygame.quit()
-sys.exit()
 
 
