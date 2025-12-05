@@ -12,7 +12,6 @@ pygame.display.set_caption("PIXIVIDAD")
 
 
 # Fondo
-# Fondo ajustado al tamaño de la ventana
 fondo = pygame.transform.scale(
     pygame.image.load("fondo.jpg").convert(),
     (ancho_ventana, alto_ventana)
@@ -20,22 +19,21 @@ fondo = pygame.transform.scale(
 fondo_y = 0
 vel_fondo = 3
 
-
 # Imagen de intro
 intro_img = pygame.image.load("INTRO3.jpg").convert()
 intro_img = pygame.transform.scale(intro_img, (ancho_ventana, alto_ventana))
 
-
-# Fuente para texto
+# Fuente
 fuente = pygame.font.Font(None, 36)
 
-# Variables del juego
+# Variables globales
 puntos = 0
-juego_activo = True  # Nuevo: indica si el juego sigue o está en "game over"
-mostrar_intro = True #Contol de intro
+juego_activo = True
+mostrar_intro = True
+victoria = False
 
 
-# Clases del juego______________________________________________________
+# ----------------------- CLASES ----------------------------
 class Jugador(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
@@ -51,23 +49,23 @@ class Jugador(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=(x, y))
         self.velocidad = 3
 
-    def mover(self, teclas_presionadas):
-        if teclas_presionadas[pygame.K_RIGHT]:
+    def mover(self, teclas):
+        if teclas[pygame.K_RIGHT]:
             self.rect.x += self.velocidad
             self.image = self.image_derecha
-        elif teclas_presionadas[pygame.K_LEFT]:
+        elif teclas[pygame.K_LEFT]:
             self.rect.x -= self.velocidad
             self.image = self.image_izquierda
 
 
 class Objeto(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, velocidad):
         super().__init__()
         self.image = pygame.image.load("sprites-coins/sprite1-1.jpg").convert()
         self.image.set_colorkey((255, 255, 255))
         self.image = pygame.transform.scale(self.image, (30, 50))
         self.rect = self.image.get_rect(center=(x, y))
-        self.velocidad_y = 3
+        self.velocidad_y = velocidad
 
     def update(self):
         self.rect.y += self.velocidad_y
@@ -79,10 +77,8 @@ class Objeto(pygame.sprite.Sprite):
 class Fuego(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-
-        # Cargar todos los frames de animación
         self.frames = []
-        for i in range(1, 6):  # f1 a f5
+        for i in range(1, 6):
             img = pygame.image.load(f"sprites-fire/f{i}.jpg").convert()
             img.set_colorkey((255, 255, 255))
             img = pygame.transform.scale(img, (50, 60))
@@ -93,16 +89,14 @@ class Fuego(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=(x, y))
 
         self.velocidad_y = 4
-        self.anim_speed = 0.15  # velocidad de animación, entre más alto el valor, la animación va más rápidito
+        self.anim_speed = 0.15
 
     def update(self):
-        # Movimiento hacia abajo
         self.rect.y += self.velocidad_y
         if self.rect.bottom >= 550:
             nueva_x = random.randint(0, ancho_ventana - self.rect.width)
             self.rect.center = (nueva_x, 50)
 
-        # Animación (cambiar frame)
         self.frame_index += self.anim_speed
         if self.frame_index >= len(self.frames):
             self.frame_index = 0
@@ -110,42 +104,42 @@ class Fuego(pygame.sprite.Sprite):
         self.image = self.frames[int(self.frame_index)]
 
 
-# _______________________________________________________________________
-
+# ----------------------- FUNCIÓN REINICIAR ----------------------------
 def reiniciar_juego():
-    global puntos, juego_activo, grupo_objetos, grupo_fuego, jugador, grupo_jugador
+    global puntos, juego_activo, mostrar_intro, victoria
+    global grupo_jugador, grupo_objetos, grupo_fuego, jugador
+    
     puntos = 0
     juego_activo = True
-    # Recrear jugador y objetos
+    victoria = False
+
     jugador = Jugador(400, 300)
     jugador.rect.bottom = 550
     grupo_jugador = pygame.sprite.GroupSingle(jugador)
 
-    x_random = random.randint(0, ancho_ventana - 50)
-    objeto = Objeto(x_random, 30)
-    grupo_objetos = pygame.sprite.Group(objeto)
+    # Crear 3 objetos simultáneos con velocidades diferentes
+    grupo_objetos = pygame.sprite.Group()
+    for i in range(3):
+        x = random.randint(0, ancho_ventana - 50)
+        y = random.randint(20, 200)
+        velocidad = random.randint(2, 6)
+        grupo_objetos.add(Objeto(x, y, velocidad))
 
+    # Crear fuego
     fuego_x = random.randint(0, ancho_ventana - 50)
     fuego = Fuego(fuego_x, 30)
     grupo_fuego = pygame.sprite.Group(fuego)
 
-# Inicialización de sprites
+
 reiniciar_juego()
-
-# Reloj del juego
 clock = pygame.time.Clock()
+
+
+# ----------------------- GAME LOOP ----------------------------
 corriendo = True
-
-
-
-
-
-# Game Loop
-
-
 while corriendo:
 
-    # ------------------- PANTALLA DE INTRO -------------------
+    # ----------- PANTALLA DE INTRO -------------
     if mostrar_intro:
         pantalla.blit(intro_img, (0, 0))
         pygame.display.flip()
@@ -153,39 +147,32 @@ while corriendo:
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 corriendo = False
-
             if evento.type == pygame.MOUSEBUTTONDOWN:
-                mostrar_intro = False  # salir de la intro
+                mostrar_intro = False
 
-        continue  # saltar el resto del loop mientras estamos en la intro
-    # ----------------------------------------------------------
+        continue
 
-
-    # Detectar eventos generales (solo si ya NO estamos en la intro)
+    # ----------- EVENTOS GENERALES ------------
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             corriendo = False
 
-        # Click para reiniciar juego
         if not juego_activo and evento.type == pygame.MOUSEBUTTONDOWN:
             if boton_rect.collidepoint(evento.pos):
                 reiniciar_juego()
 
-
-    # Mover fondo hacia abajo
+    # ----------- FONDO -------------
     fondo_y += vel_fondo
     if fondo_y >= alto_ventana:
         fondo_y = 0
 
-    # Dibujar fondo animado
     pantalla.blit(fondo, (0, fondo_y))
     pantalla.blit(fondo, (0, fondo_y - alto_ventana))
 
-    # Suelo
     pygame.draw.rect(pantalla, (180, 220, 255), (0, 550, 800, 50))
 
 
-    # ------------------- JUEGO ACTIVO -------------------
+    # ----------- JUEGO ACTIVO -------------
     if juego_activo:
         teclas = pygame.key.get_pressed()
         jugador.mover(teclas)
@@ -198,28 +185,38 @@ while corriendo:
         colisiones = pygame.sprite.spritecollide(jugador, grupo_objetos, dokill=True)
         if colisiones:
             puntos += 10
-            nueva_x = random.randint(0, ancho_ventana - 50)
-            nuevo_objeto = Objeto(nueva_x, 30)
-            grupo_objetos.add(nuevo_objeto)
 
-        # Colisión con fuego
+            # Agregar nuevo objeto
+            x = random.randint(0, ancho_ventana - 50)
+            velocidad = random.randint(2, 6)
+            grupo_objetos.add(Objeto(x, 30, velocidad))
+
+        # Win (500 puntos)
+        if puntos >= 100:
+            juego_activo = False
+            victoria = True
+
+        # Colisión con fuego → Game Over
         if pygame.sprite.spritecollide(jugador, grupo_fuego, dokill=False):
             juego_activo = False
 
-        # Dibujar sprites
         grupo_objetos.draw(pantalla)
         grupo_fuego.draw(pantalla)
         grupo_jugador.draw(pantalla)
 
-        # Puntaje
         texto_puntos = fuente.render(f"Puntos: {puntos}", True, (0, 0, 0))
         pantalla.blit(texto_puntos, (20, 20))
 
-    # ------------------- GAME OVER -------------------
+    # ----------- GAME OVER / WIN -------------
     else:
-        texto_gameover = fuente.render("¡Vuelve a intentarlo!", True, (200, 0, 0))
+        if victoria:
+            texto_win = fuente.render("¡HAS GANADO!", True, (0, 150, 0))
+            pantalla.blit(texto_win, (ancho_ventana//2 - 120, 200))
+        else:
+            texto_gameover = fuente.render("¡Vuelve a intentarlo!", True, (200, 0, 0))
+            pantalla.blit(texto_gameover, (ancho_ventana//2 - 120, 200))
+
         texto_puntaje = fuente.render(f"Puntuación final: {puntos}", True, (0, 0, 0))
-        pantalla.blit(texto_gameover, (ancho_ventana//2 - 120, 200))
         pantalla.blit(texto_puntaje, (ancho_ventana//2 - 110, 250))
 
         # Botón Reiniciar
@@ -231,4 +228,6 @@ while corriendo:
     pygame.display.flip()
     clock.tick(60)
 
+pygame.quit()
+sys.exit()
 
